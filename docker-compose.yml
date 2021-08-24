@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  talkie_mongodb:
+    container_name: talkie_dev_mongodb
+    image: mongo
+    restart: always
+    ports:
+      - '57059:27017'
+    volumes:
+      - ./mongo-volume:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?err}
+
+  talkie_express:
+    container_name: talkie_dev_mongo_express
+    image: mongo-express
+    restart: always
+    depends_on:
+      - talkie_mongodb
+    links:
+      - talkie_mongodb
+    ports:
+      - 8088:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: 'talkie_mongodb'
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD:?err}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:?err}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:?err}
